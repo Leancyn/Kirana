@@ -25,12 +25,6 @@
     },
     "web": {
       "favicon": "./assets/images/brand-mark.svg"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "600752c6-fd7b-49fb-8e21-ff66178bf098"
-      }
-    },
-    "owner": "leancyn"
+    }
   }
 }
