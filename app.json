@@ -4,11 +4,11 @@
     "slug": "kirana",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/brand-mark.svg",
+    "icon": "./assets/images/brand-mark.png",
     "scheme": "kirana",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/brand-mark.svg",
+      "image": "./assets/images/brand-mark.png",
       "resizeMode": "contain",
       "backgroundColor": "#1F6F68"
     },
@@ -18,13 +18,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/brand-mark.svg",
+        "foregroundImage": "./assets/images/brand-mark.png",
         "backgroundColor": "#1F6F68"
       },
       "package": "com.kirana.app"
     },
     "web": {
-      "favicon": "./assets/images/brand-mark.svg"
-    }
+      "favicon": "./assets/images/brand-mark.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "600752c6-fd7b-49fb-8e21-ff66178bf098"
+      }
+    },
+    "plugins": [
+      "expo-sqlite"
+    ]
   }
 }

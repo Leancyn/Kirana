@@ -1,50 +1,96 @@
-# Welcome to your Expo app 👋
+# Kirana
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplikasi mobile manajemen keuangan pribadi berbasis Expo untuk melacak pengeluaran, merencanakan tabungan, dan memberikan rekomendasi alokasi keuangan menggunakan **metode Fuzzy Tsukamoto**.
 
-## Get started
+## Fitur Utama
 
-1. Install dependencies
+1. **Dashboard Keuangan**
+   - Ringkasan pendapatan bulanan, total pengeluaran, dan saldo akumulatif
+   - Ringkasan pengeluaran & tabungan bulan berjalan
+   - Menampilkan kategori pengeluaran terbesar
+   - Menampilkan rekomendasi alokasi dari sistem fuzzy
+
+2. **Tracking Pengeluaran**
+   - Menambah pengeluaran (deskripsi, nominal, kategori, tanggal)
+   - Melihat detail/riwayat pengeluaran
+   - Menghapus pengeluaran yang tidak valid
+
+3. **Perencanaan Tabungan**
+   - Membuat dan mengelola beberapa **savings target** (nama, nominal target, jangka waktu)
+   - Menambah pemasukan ke target tertentu
+   - Melihat progres tiap target
+
+4. **Rekomendasi Alokasi (Fuzzy Tsukamoto)**
+   - Menganalisis kondisi finansial berdasarkan pendapatan, rasio pengeluaran, dan kebutuhan/target tabungan
+   - Menghasilkan pembagian alokasi ke:
+     - **Kebutuhan/Essential**
+     - **Tabungan/Savings**
+     - **Pengeluaran Diskresioner/Discretionary**
+   - Menyediakan penjelasan logika dan saran tindakan (action items)
+
+5. **Profil Pengguna**
+   - Mengatur pendapatan bulanan dan informasi profil terkait
+   - Memudahkan konfigurasi awal sebelum menggunakan fitur rekomendasi
+
+## Teknologi yang Digunakan
+
+- **Expo** (React Native)
+- **React Navigation** (navigasi tab & stack)
+- **Zustand** (state management)
+- **React Native Chart Kit** (visualisasi)
+- **expo-sqlite** (penyimpanan lokal)
+
+## Struktur Kode (Ringkas)
+
+- `src/navigation/RootNavigator.js` : definisi navigasi antar fitur
+- `src/screens/` : halaman utama
+  - `DashboardScreen.js`
+  - `AddExpenseScreen.js`
+  - `SavingsScreen.js`
+  - `RecommendationScreen.js`
+  - `ProfileScreen.js`
+- `src/fuzzy/tsukamoto.js` : engine perhitungan rekomendasi Fuzzy Tsukamoto
+- `src/store/financeStore.js` : store data dan business logic
+
+## Instalasi & Menjalankan
+
+### Prasyarat
+
+- Node.js dan npm
+
+### Langkah
+
+1. Instal dependency
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Jalankan project
 
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+3. Buka aplikasi pada salah satu opsi berikut:
+   - Android emulator
+   - iOS simulator
+   - Expo Go (scan QR code)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Skrip Berguna
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- `npm run reset-project` : menjalankan skrip reset project
+- `npm run lint` : linting
 
-## Get a fresh project
+## Catatan Implementasi Fuzzy Tsukamoto
 
-When you're ready, run:
+Engine rekomendasi pada `src/fuzzy/tsukamoto.js` menggunakan tahapan umum logika fuzzy:
 
-```bash
-npm run reset-project
-```
+- **Fuzzifikasi** input (pendapatan, rasio pengeluaran, rasio target tabungan)
+- **Evaluasi aturan (rules)** menggunakan derajat keanggotaan
+- **Defuzzifikasi** untuk menghasilkan nilai crisp alokasi
+- **Normalisasi** agar total alokasi kembali ke 100%
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Versi
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `1.0.0`
