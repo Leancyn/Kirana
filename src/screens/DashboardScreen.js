@@ -99,14 +99,19 @@ const DashboardScreen = ({ navigation }) => {
   const daysLeft = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() - new Date().getDate();
   const dailyBudget = Math.max(0, Math.floor(remainingBudget / Math.max(daysLeft || 1, 1)));
   const todayExpenses = getTodayExpenses();
+  const dailyBudgetRemaining = Math.max(0, dailyBudget - todayExpenses);
   const isDailyBudgetExceeded = todayExpenses > dailyBudget;
 
   const budgetStatus =
     remainingBudget < 0
       ? { label: "Melebihi anggaran", color: COLORS.danger, icon: "alert-circle" }
-      : expensePercentage > 75
-        ? { label: "Perlu hemat", color: COLORS.warning, icon: "trending-up" }
-        : { label: "Sehat", color: COLORS.success, icon: "checkmark-circle" };
+      : expensePercentage >= 90
+        ? { label: "Sangat Perlu Hemat", color: COLORS.danger, icon: "alert-circle" }
+        : expensePercentage > 75
+          ? { label: "Perlu hemat", color: COLORS.warning, icon: "trending-up" }
+          : expensePercentage > 50
+            ? { label: "Cukup baik", color: COLORS.primary, icon: "trending-down" }
+            : { label: "Sehat", color: COLORS.success, icon: "checkmark-circle" };
 
   if (monthlyIncome === 0) {
     return (
@@ -148,7 +153,7 @@ const DashboardScreen = ({ navigation }) => {
       </Animated.View>
 
       <View style={styles.insightRow}>
-        <InsightChip label="Budget harian" value={formatCurrency(dailyBudget)} iconName="cafe-outline" color={COLORS.secondary} />
+        <InsightChip label="Sisa budget harian" value={formatCurrency(dailyBudgetRemaining)} iconName="cafe-outline" color={COLORS.secondary} />
         <InsightChip label="Hari tersisa" value={`${daysLeft} hari`} iconName="calendar-outline" color={COLORS.accent} />
       </View>
 

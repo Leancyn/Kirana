@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { COLORS } from "../constants";
-import { PrimaryButton, SecondaryButton } from "./index";
+import { PrimaryButton, SecondaryButton } from "./Buttons";
 
 /**
  * Bottom sheet modal untuk form input.

@@ -1,20 +1,19 @@
-import React from "react";
-import { View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
 import { Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { Platform, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS } from "../constants";
 
 // Screens
-import DashboardScreen from "../screens/DashboardScreen";
 import AddExpenseScreen from "../screens/AddExpenseScreen";
-import SavingsScreen from "../screens/SavingsScreen";
-import RecommendationScreen from "../screens/RecommendationScreen";
-import ProfileScreen from "../screens/ProfileScreen";
+import DashboardScreen from "../screens/DashboardScreen";
 import ExpenseDetailScreen from "../screens/ExpenseDetailScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import RecommendationScreen from "../screens/RecommendationScreen";
 import SavingsDetailScreen from "../screens/SavingsDetailScreen";
+import SavingsScreen from "../screens/SavingsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -93,7 +92,7 @@ const SavingsStack = () => {
 
 export const RootNavigator = () => {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.light }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.light }} edges={["top", "bottom"]}>
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={({ route }) => ({
@@ -143,10 +142,10 @@ export const RootNavigator = () => {
               position: "absolute",
               left: 14,
               right: 14,
-              bottom: 12,
+              bottom: Platform.OS === "android" ? 20 : 12,
               borderTopWidth: 0,
               borderRadius: 22,
-              paddingBottom: 10,
+              paddingBottom: Platform.OS === "android" ? 16 : 10,
               paddingTop: 10,
               height: 72,
               shadowColor: "#111827",

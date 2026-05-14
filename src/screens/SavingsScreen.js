@@ -340,6 +340,8 @@ const SavingsScreen = ({ navigation }) => {
         <View style={styles.fabRow}>
           {savingsTargets.length === 0 ? (
             <PrimaryButton title="Buat Target" iconName="flag-outline" onPress={() => setShowAddForm(true)} style={[styles.fab, { backgroundColor: COLORS.success, width: 140 }]} />
+          ) : savingsTargets.every((t) => (t.currentAmount || 0) >= (t.targetAmount || 0)) ? (
+            <PrimaryButton title="Target Baru" iconName="flag-outline" onPress={() => setShowAddForm(true)} style={[styles.fab, { backgroundColor: COLORS.success, width: 140 }]} />
           ) : (
             <PrimaryButton
               title="Isi Target"
