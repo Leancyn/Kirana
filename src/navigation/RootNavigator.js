@@ -2,8 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Platform, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "../constants";
 
 // Screens
@@ -91,6 +91,9 @@ const SavingsStack = () => {
 };
 
 export const RootNavigator = () => {
+  const insets = useSafeAreaInsets();
+  const bottomSafeArea = Math.max(insets.bottom, 12);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.light }} edges={["top", "bottom"]}>
       <NavigationContainer>
@@ -142,12 +145,12 @@ export const RootNavigator = () => {
               position: "absolute",
               left: 14,
               right: 14,
-              bottom: Platform.OS === "android" ? 20 : 12,
+              bottom: bottomSafeArea,
               borderTopWidth: 0,
               borderRadius: 22,
-              paddingBottom: Platform.OS === "android" ? 16 : 10,
+              paddingBottom: 10 + insets.bottom,
               paddingTop: 10,
-              height: 72,
+              height: 72 + insets.bottom,
               shadowColor: "#111827",
               shadowOffset: { width: 0, height: 8 },
               shadowOpacity: 0.14,
