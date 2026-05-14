@@ -1,13 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "../constants";
 import { PrimaryButton, SecondaryButton } from "./Buttons";
 
-/**
- * Bottom sheet modal untuk form input.
- * - Konten scrollable
- * - Footer tombol (batal/simpan)
- */
 export default function BottomSheetFormModal({
   visible,
   title,
@@ -17,10 +13,11 @@ export default function BottomSheetFormModal({
   secondaryLabel = "Batal",
   onPrimaryPress,
   onSecondaryPress,
-  tone = "primary", // primary|success|warning|danger
+  tone = "primary",
   primaryIconName = "checkmark-outline",
   contentStyle,
 }) {
+  const insets = useSafeAreaInsets();
   const toneColor = {
     primary: COLORS.primary,
     success: COLORS.success,
@@ -30,10 +27,14 @@ export default function BottomSheetFormModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <TouchableOpacity style={styles.backdropTouch} activeOpacity={1} onPress={onClose} />
+      {/* Backdrop sebagai layer terpisah */}
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.backdrop} />
+      </TouchableWithoutFeedback>
 
-        <View style={styles.sheetWrap}>
+      {/* Sheet naik bareng keyboard */}
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.kavContainer} pointerEvents="box-none">
+        <SafeAreaView edges={["bottom"]} style={[styles.sheetWrap, { marginBottom: -insets.bottom }]}>
           <View style={styles.sheet}>
             <View style={styles.handleRow}>
               <View style={styles.handle} />
@@ -50,33 +51,29 @@ export default function BottomSheetFormModal({
               {children}
             </ScrollView>
 
-            <View style={styles.footer}>
+            <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 14) }]}>
               <SecondaryButton title={secondaryLabel} onPress={onSecondaryPress || onClose} style={[styles.footerBtn, { backgroundColor: COLORS.light }]} />
               <PrimaryButton title={primaryLabel} iconName={primaryIconName} onPress={onPrimaryPress} style={[styles.footerBtn, { backgroundColor: toneColor }]} />
             </View>
           </View>
-        </View>
-      </View>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   backdrop: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(17,24,39,0.55)",
+  },
+  kavContainer: {
+    flex: 1,
     justifyContent: "flex-end",
   },
-  backdropTouch: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
+  // sisanya sama persis seperti sebelumnya
   sheetWrap: {
     padding: 16,
-    paddingBottom: Platform.OS === "ios" ? 28 : 16,
   },
   sheet: {
     backgroundColor: COLORS.white,
@@ -87,6 +84,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 30,
     elevation: 18,
+    maxHeight: "85%",
   },
   handleRow: {
     alignItems: "center",

@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AllocationBar, AppModal, BottomSheetFormModal, Card, EmptyState, MoneyMeter, PrimaryButton, ScreenHeader, SecondaryButton, SectionHeader, StatusPill } from "../components";
 
 import { CurrencyInput, FormInput } from "../components/FormComponents";
@@ -18,6 +19,7 @@ const SavingsScreen = ({ navigation }) => {
   const [targetDeadline, setTargetDeadline] = useState("");
   const [savingAmount, setSavingAmount] = useState("");
   const [savingDescription, setSavingDescription] = useState("");
+  const insets = useSafeAreaInsets();
   const [selectedTargetId, setSelectedTargetId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [modal, setModal] = useState({ visible: false });
@@ -337,7 +339,7 @@ const SavingsScreen = ({ navigation }) => {
 
       {/* Floating Action Button */}
       {!showAddForm && !showSavingForm && (
-        <View style={styles.fabRow}>
+        <View style={[styles.fabRow, { bottom: insets.bottom + 8, right: 16 }]}>
           {savingsTargets.length === 0 ? (
             <PrimaryButton title="Buat Target" iconName="flag-outline" onPress={() => setShowAddForm(true)} style={[styles.fab, { backgroundColor: COLORS.success, width: 140 }]} />
           ) : savingsTargets.every((t) => (t.currentAmount || 0) >= (t.targetAmount || 0)) ? (
@@ -391,7 +393,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     paddingTop: 12,
-    paddingBottom: 190,
+    paddingBottom: 90,
   },
 
   savingActionCard: {

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Kirana",
     "slug": "kirana",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/brand-mark.png",
     "scheme": "kirana",
@@ -34,9 +34,14 @@
     "plugins": [
       "expo-sqlite",
       "expo-font",
-      "expo-image",
-      "expo-router",
-      "expo-web-browser"
-    ]
+      "expo-web-browser",
+      "expo-router"
+    ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/600752c6-fd7b-49fb-8e21-ff66178bf098"
+    }
   }
 }

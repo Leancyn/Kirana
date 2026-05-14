@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppModal, BottomSheetFormModal, Card, CategoryBadge, EmptyState, MoneyMeter, PrimaryButton, ScreenHeader, SectionHeader, StatusPill } from "../components";
 
 import { CategorySelector, CurrencyInput, DateTimePicker, FormInput } from "../components/FormComponents";
@@ -98,6 +99,17 @@ const AddExpenseScreen = ({ navigation }) => {
 
   const groupedExpenses = groupExpensesByCategory(expenses);
   const stats = generateExpenseStats(expenses);
+  const insets = useSafeAreaInsets();
+
+  if (monthlyIncome === 0) {
+    return (
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <EmptyState iconName="settings-outline" title="Setup Profil Terlebih Dahulu" subtitle="Lengkapi informasi keuangan Anda untuk mulai mencatat pengeluaran dan mendapatkan insight yang lebih baik." />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
+  }
 
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -235,7 +247,21 @@ const AddExpenseScreen = ({ navigation }) => {
       </ScrollView>
 
       {/* Floating Action Button */}
-      {!showForm && <PrimaryButton title="Catat" iconName="add-circle-outline" onPress={() => setShowForm(true)} style={[styles.fab, { backgroundColor: COLORS.accent }]} />}
+      {!showForm && (
+        <PrimaryButton
+          title="Catat"
+          iconName="add-circle-outline"
+          onPress={() => setShowForm(true)}
+          style={[
+            styles.fab,
+            {
+              backgroundColor: COLORS.accent,
+              bottom: insets.bottom + 8,
+              right: 16,
+            },
+          ]}
+        />
+      )}
 
       <AppModal
         visible={modal.visible}
@@ -264,7 +290,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     paddingTop: 12,
-    paddingBottom: 190,
+    paddingBottom: 90,
   },
   entryCard: {
     marginBottom: 16,

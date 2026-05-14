@@ -92,10 +92,9 @@ const SavingsStack = () => {
 
 export const RootNavigator = () => {
   const insets = useSafeAreaInsets();
-  const bottomSafeArea = Math.max(insets.bottom, 12);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.light }} edges={["top", "bottom"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.light }} edges={["top"]}>
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={({ route }) => ({
@@ -142,29 +141,26 @@ export const RootNavigator = () => {
             tabBarInactiveTintColor: COLORS.gray,
             tabBarStyle: {
               backgroundColor: COLORS.white,
-              position: "absolute",
-              left: 14,
-              right: 14,
-              bottom: bottomSafeArea,
-              borderTopWidth: 0,
-              borderRadius: 22,
-              paddingBottom: 10 + insets.bottom,
-              paddingTop: 10,
-              height: 72 + insets.bottom,
-              shadowColor: "#111827",
-              shadowOffset: { width: 0, height: 8 },
-              shadowOpacity: 0.14,
-              shadowRadius: 18,
-              elevation: 12,
+              borderTopWidth: 1,
+              borderTopColor: COLORS.light,
+
+              height: 60 + insets.bottom,
+              paddingBottom: insets.bottom + 6,
+              paddingTop: 6,
+
+              shadowColor: "transparent",
+              elevation: 0,
             },
             tabBarLabelStyle: {
               fontSize: 10,
               fontWeight: "700",
-              marginTop: 2,
+              marginTop: 0,
+              paddingBottom: 2,
             },
             tabBarItemStyle: {
-              borderRadius: 999,
-              marginHorizontal: 2,
+              borderRadius: 0,
+              marginHorizontal: 0,
+              paddingVertical: 0,
             },
           })}
         >
