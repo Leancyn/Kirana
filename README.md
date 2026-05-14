@@ -1,96 +1,54 @@
 # Kirana
 
-Aplikasi mobile manajemen keuangan pribadi berbasis Expo untuk melacak pengeluaran, merencanakan tabungan, dan memberikan rekomendasi alokasi keuangan menggunakan **metode Fuzzy Tsukamoto**.
+[![React Native](https://img.shields.io/badge/React_Native-2025-61DAFB?style=for-the-badge&logo=react)](https://reactnative.dev/)  
+[![Expo](https://img.shields.io/badge/Expo-48-000000?style=for-the-badge&logo=expo)](https://expo.dev/)  
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strong-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)  
+[![State Management](https://img.shields.io/badge/Zustand-Lightweight-orange?style=for-the-badge)](https://github.com/pmndrs/zustand)  
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-## Fitur Utama
+---
 
-1. **Dashboard Keuangan**
-   - Ringkasan pendapatan bulanan, total pengeluaran, dan saldo akumulatif
-   - Ringkasan pengeluaran & tabungan bulan berjalan
-   - Menampilkan kategori pengeluaran terbesar
-   - Menampilkan rekomendasi alokasi dari sistem fuzzy
+## About the Application
 
-2. **Tracking Pengeluaran**
-   - Menambah pengeluaran (deskripsi, nominal, kategori, tanggal)
-   - Melihat detail/riwayat pengeluaran
-   - Menghapus pengeluaran yang tidak valid
+Kirana is a mobile personal finance management application built for Android that helps users record daily income and expenses, while also providing financial recommendations using the Fuzzy Tsukamoto method.
 
-3. **Perencanaan Tabungan**
-   - Membuat dan mengelola beberapa **savings target** (nama, nominal target, jangka waktu)
-   - Menambah pemasukan ke target tertentu
-   - Melihat progres tiap target
+The application is designed to help users:
+- Control personal spending
+- Manage financial priorities
+- Improve saving habits
 
-4. **Rekomendasi Alokasi (Fuzzy Tsukamoto)**
-   - Menganalisis kondisi finansial berdasarkan pendapatan, rasio pengeluaran, dan kebutuhan/target tabungan
-   - Menghasilkan pembagian alokasi ke:
-     - **Kebutuhan/Essential**
-     - **Tabungan/Savings**
-     - **Pengeluaran Diskresioner/Discretionary**
-   - Menyediakan penjelasan logika dan saran tindakan (action items)
+---
 
-5. **Profil Pengguna**
-   - Mengatur pendapatan bulanan dan informasi profil terkait
-   - Memudahkan konfigurasi awal sebelum menggunakan fitur rekomendasi
+## Features
 
-## Teknologi yang Digunakan
+- Record daily income and expenses
+- Transaction categories (food, transport, etc.)
+- Automatic financial recommendations using Fuzzy Tsukamoto
+- Daily, weekly, and monthly summaries
+- User spending pattern analysis
+- Transaction reminder notifications
+- Lightweight and responsive Android UI
 
-- **Expo** (React Native)
-- **React Navigation** (navigasi tab & stack)
-- **Zustand** (state management)
-- **React Native Chart Kit** (visualisasi)
-- **expo-sqlite** (penyimpanan lokal)
+---
 
-## Struktur Kode (Ringkas)
+## Fuzzy Tsukamoto System Workflow
 
-- `src/navigation/RootNavigator.js` : definisi navigasi antar fitur
-- `src/screens/` : halaman utama
-  - `DashboardScreen.js`
-  - `AddExpenseScreen.js`
-  - `SavingsScreen.js`
-  - `RecommendationScreen.js`
-  - `ProfileScreen.js`
-- `src/fuzzy/tsukamoto.js` : engine perhitungan rekomendasi Fuzzy Tsukamoto
-- `src/store/financeStore.js` : store data dan business logic
+```mermaid
+flowchart TD
+A[User Input] --> B[Monthly Income]
+A --> C[Monthly Expenses]
+A --> D[Remaining Balance]
 
-## Instalasi & Menjalankan
+B --> E[Fuzzification]
+C --> E
+D --> E
 
-### Prasyarat
+E --> F[IF-THEN Rule Base]
+F --> G[Tsukamoto Inference Engine]
 
-- Node.js dan npm
+G --> H[Defuzzification]
+H --> I[Recommendation Output]
 
-### Langkah
-
-1. Instal dependency
-
-   ```bash
-   npm install
-   ```
-
-2. Jalankan project
-
-   ```bash
-   npm start
-   ```
-
-3. Buka aplikasi pada salah satu opsi berikut:
-   - Android emulator
-   - iOS simulator
-   - Expo Go (scan QR code)
-
-### Skrip Berguna
-
-- `npm run reset-project` : menjalankan skrip reset project
-- `npm run lint` : linting
-
-## Catatan Implementasi Fuzzy Tsukamoto
-
-Engine rekomendasi pada `src/fuzzy/tsukamoto.js` menggunakan tahapan umum logika fuzzy:
-
-- **Fuzzifikasi** input (pendapatan, rasio pengeluaran, rasio target tabungan)
-- **Evaluasi aturan (rules)** menggunakan derajat keanggotaan
-- **Defuzzifikasi** untuk menghasilkan nilai crisp alokasi
-- **Normalisasi** agar total alokasi kembali ke 100%
-
-## Versi
-
-- `1.0.0`
+I --> J[Frugal Recommendation]
+I --> K[Balanced Recommendation]
+I --> L[Aggressive Saving Recommendation]
