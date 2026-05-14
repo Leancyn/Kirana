@@ -4,9 +4,85 @@ import { appStorage } from "./storage";
 
 const createId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
+const getMonthKey = (d) => {
+  const date = d instanceof Date ? d : new Date(d);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
+};
+
 export const useFinanceStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
+      // Derived helpers (internal)
+      getMonthExpenses: (monthKey) => {
+        return get()
+          .expenses.filter((e) => getMonthKey(e.date) === monthKey)
+          .reduce((sum, e) => sum + e.amount, 0);
+      },
+
+      getMonthSavings: (monthKey) => {
+        return get()
+          .transactions.filter((t) => t.type === "saving" && getMonthKey(t.date) === monthKey)
+          .reduce((sum, t) => sum + t.amount, 0);
+      },
+
+      // Force recompute all derived state based on stored history
+      recomputeDerivedState: () => {
+        const now = new Date();
+        const currentMonthKey = getMonthKey(now);
+        const allMonthKeys = new Set();
+
+        // Collect month keys from expenses and saving transactions
+        get().expenses.forEach((e) => allMonthKeys.add(getMonthKey(e.date)));
+        get().transactions.forEach((t) => {
+          if (t.type === "saving") allMonthKeys.add(getMonthKey(t.date));
+        });
+
+        // Ensure current month is included
+        allMonthKeys.add(currentMonthKey);
+
+        // Current month derived totals
+        const currentMonthExpenses = get().getMonthExpenses(currentMonthKey);
+        const currentMonthSavings = get().getMonthSavings(currentMonthKey);
+
+        // accumulatedBalance = carry-over sisa dari bulan-bulan sebelumnya.
+        // Model saat ini hanya menyimpan histori expenses & saving transaksi, sementara pendapatan dianggap konstan per bulan (monthlyIncome).
+        // Jadi, remainder bulan = monthlyIncome - expenses bulan - savings bulan.
+        // Note: remainder boleh negatif; UI sudah menangani.
+        const currentYM = now.getFullYear() * 12 + now.getMonth();
+        let accumulatedBalance = 0;
+
+        Array.from(allMonthKeys).forEach((mk) => {
+          const [yStr, mStr] = mk.split("-");
+          const y = Number(yStr);
+          const mIndex = Number(mStr) - 1;
+          const ym = y * 12 + mIndex;
+
+          if (ym < currentYM) {
+            const remainder = get().monthlyIncome - get().getMonthExpenses(mk) - get().getMonthSavings(mk);
+            accumulatedBalance += remainder;
+          }
+        });
+
+        set({
+          currentMonthExpenses,
+          currentMonthSavings,
+          accumulatedBalance,
+        });
+      },
+
+      lastDerivedMonthKey: null,
+      syncRollovers: () => {
+        const now = new Date();
+        const currentMonthKey = getMonthKey(now);
+        const last = get().lastDerivedMonthKey;
+
+        if (last === currentMonthKey) return;
+
+        set({ lastDerivedMonthKey: currentMonthKey });
+        get().recomputeDerivedState();
+      },
       // User Profile
       monthlyIncome: 0,
       savingsGoal: 0,
@@ -106,27 +182,31 @@ export const useFinanceStore = create(
         return grouped;
       },
 
-      // Recalculate current month data
-      recalculateCurrentMonthData: () =>
-        set((state) => {
-          const now = new Date();
-          const currentMonth = now.getMonth();
-          const currentYear = now.getFullYear();
+      // Recalculate current month data (and also sync month rollovers)
+      recalculateCurrentMonthData: () => {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
-          const currentMonthExpenses = state.expenses
-            .filter((expense) => {
-              const expenseDate = new Date(expense.date);
-              return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
-            })
-            .reduce((sum, e) => sum + e.amount, 0);
+        const currentMonthExpenses = get()
+          .expenses.filter((expense) => {
+            const expenseDate = new Date(expense.date);
+            return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
+          })
+          .reduce((sum, e) => sum + e.amount, 0);
 
-          const currentMonthSavings = state.transactions.filter((t) => t.type === "saving" && new Date(t.date).getMonth() === currentMonth && new Date(t.date).getFullYear() === currentYear).reduce((sum, t) => sum + t.amount, 0);
+        const currentMonthSavings = get()
+          .transactions.filter((t) => t.type === "saving" && new Date(t.date).getMonth() === currentMonth && new Date(t.date).getFullYear() === currentYear)
+          .reduce((sum, t) => sum + t.amount, 0);
 
-          return {
-            currentMonthExpenses,
-            currentMonthSavings,
-          };
-        }),
+        set({
+          currentMonthExpenses,
+          currentMonthSavings,
+        });
+
+        // Also trigger recomputeDerivedState to sync accumulatedBalance
+        get().recomputeDerivedState();
+      },
 
       // Get total expenses
       getTotalExpenses: function () {
@@ -148,21 +228,27 @@ export const useFinanceStore = create(
         return state.expenses.filter((expense) => new Date(expense.date).toDateString() === todayString).reduce((sum, e) => sum + e.amount, 0);
       },
 
-      // Reset monthly data and carry forward remaining balance
-      resetMonthlyData: () =>
-        set((state) => {
-          const remainingBudget = state.monthlyIncome + state.accumulatedBalance - state.currentMonthExpenses - state.currentMonthSavings;
-          const carryOverBalance = Math.max(0, remainingBudget);
+      // Reset monthly data (clear expenses/savings for current month, recalculate balance)
+      resetMonthlyData: () => {
+        set((state) => ({
+          expenses: [],
+          transactions: [],
+          savingsTargets: [],
+          currentMonthExpenses: 0,
+          currentMonthSavings: 0,
+          accumulatedBalance: 0,
+          lastDerivedMonthKey: null,
+        }));
 
-          return {
-            expenses: [],
-            transactions: [],
-            currentMonthExpenses: 0,
-            currentMonthSavings: 0,
-            accumulatedBalance: carryOverBalance,
-            savingsTargets: [],
-          };
-        }),
+        // Force recompute after state reset
+        setTimeout(() => {
+          try {
+            get().recomputeDerivedState();
+          } catch (_e) {
+            // ignore; Zustand state may still be settling
+          }
+        }, 0);
+      },
     }),
     {
       name: "finance-store",
@@ -179,6 +265,18 @@ export const useFinanceStore = create(
         accumulatedBalance: state.accumulatedBalance,
         lastRecommendation: state.lastRecommendation,
       }),
+      onRehydrateStorage: () => (state) => {
+        // After hydration from storage, recompute derived state to ensure accumulatedBalance is accurate
+        if (state) {
+          setTimeout(() => {
+            try {
+              useFinanceStore.getState().recomputeDerivedState();
+            } catch (_e) {
+              // Ignore errors during rehydration
+            }
+          }, 0);
+        }
+      },
     },
   ),
 );

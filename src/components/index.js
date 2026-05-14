@@ -1,7 +1,10 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { COLORS } from "../constants";
+import BottomSheetFormModal from "./BottomSheetFormModal";
+
+export { default as KiranaHeader } from "./KiranaHeader";
+export { BottomSheetFormModal };
 
 export const Card = ({ style, children, onPress, ...props }) => {
   const content = (
@@ -54,11 +57,14 @@ export const PrimaryButton = ({ title, onPress, style, disabled = false, loading
   );
 };
 
-export const SecondaryButton = ({ title, onPress, style, disabled = false, iconName, ...props }) => {
+export const SecondaryButton = ({ title, onPress, style, disabled = false, iconName, textColor, iconColor, ...props }) => {
+  const resolvedTextColor = textColor || COLORS.primary;
+  const resolvedIconColor = iconColor || COLORS.primary;
+
   return (
     <TouchableOpacity style={[styles.secondaryButton, disabled && styles.buttonDisabled, style]} onPress={onPress} disabled={disabled} {...props}>
-      {iconName && <Ionicons name={iconName} size={18} color={COLORS.primary} style={styles.buttonIcon} />}
-      <Text style={styles.secondaryButtonText}>{title}</Text>
+      {iconName && <Ionicons name={iconName} size={18} color={resolvedIconColor} style={styles.buttonIcon} />}
+      <Text style={[styles.secondaryButtonText, { color: resolvedTextColor }]}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -198,9 +204,7 @@ export const AppModal = ({ visible, title, message, iconName = "information-circ
           {message && <Text style={styles.modalMessage}>{message}</Text>}
           {children}
           <View style={styles.modalActions}>
-            {secondaryLabel && (
-              <SecondaryButton title={secondaryLabel} onPress={onSecondaryPress || onClose} style={styles.modalButton} />
-            )}
+            {secondaryLabel && <SecondaryButton title={secondaryLabel} onPress={onSecondaryPress || onClose} style={styles.modalButton} />}
             <PrimaryButton title={primaryLabel} onPress={onPrimaryPress || onClose} style={[styles.modalButton, { backgroundColor: toneColor }]} />
           </View>
         </View>

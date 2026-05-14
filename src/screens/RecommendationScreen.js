@@ -1,15 +1,17 @@
-import React, { useCallback, useState } from "react";
-import { View, ScrollView, StyleSheet, Text, RefreshControl } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { useFinanceStore } from "../store/financeStore";
-import { fuzzyInference, generateRecommendations } from "../fuzzy/tsukamoto";
-import { formatCurrency } from "../utils/formatters";
+import { useCallback, useState } from "react";
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { AllocationBar, Card, EmptyState, MoneyMeter, ScreenHeader, SectionHeader, StatusPill } from "../components";
+
 import { COLORS } from "../constants";
-import { Card, ScreenHeader, SectionHeader, AllocationBar, EmptyState, MoneyMeter, StatusPill } from "../components";
+import { fuzzyInference, generateRecommendations } from "../fuzzy/tsukamoto";
+import { useFinanceStore } from "../store/financeStore";
+import { formatCurrency } from "../utils/formatters";
+
 import { Ionicons } from "@expo/vector-icons";
 
 const RecommendationScreen = () => {
-  const { monthlyIncome, currentMonthExpenses, currentMonthSavings, savingsTargets } = useFinanceStore();
+  const { monthlyIncome, accumulatedBalance, currentMonthExpenses, currentMonthSavings, savingsTargets } = useFinanceStore();
 
   const [recommendation, setRecommendation] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -17,13 +19,17 @@ const RecommendationScreen = () => {
   const generateRecommendation = useCallback(() => {
     if (monthlyIncome === 0) return;
 
+    // Ikuti logika yang dipakai Dashboard: masukkan saldo terbawa ke total budget
+    const totalBudget = monthlyIncome + accumulatedBalance;
     const totalSavingsTarget = savingsTargets.reduce((sum, t) => sum + (t.targetAmount || 0), 0);
-    const allocation = fuzzyInference(monthlyIncome, currentMonthExpenses, totalSavingsTarget || currentMonthSavings);
+    const effectiveSavingsTarget = totalSavingsTarget || currentMonthSavings;
 
-    const rec = generateRecommendations(monthlyIncome, currentMonthExpenses, totalSavingsTarget || currentMonthSavings, allocation);
+    // fuzzy Tsukamoto (memastikan logika fuzzy tetap dipakai)
+    const allocation = fuzzyInference(totalBudget, currentMonthExpenses, effectiveSavingsTarget);
+    const rec = generateRecommendations(totalBudget, currentMonthExpenses, effectiveSavingsTarget, allocation);
 
     setRecommendation(rec);
-  }, [currentMonthExpenses, currentMonthSavings, monthlyIncome, savingsTargets]);
+  }, [accumulatedBalance, currentMonthExpenses, currentMonthSavings, monthlyIncome, savingsTargets]);
 
   useFocusEffect(generateRecommendation);
 
@@ -51,7 +57,8 @@ const RecommendationScreen = () => {
     );
   }
 
-  const statusColor = recommendation.summary.isOptimal ? COLORS.success : COLORS.warning;
+  const isBudgetStable = monthlyIncome + accumulatedBalance - currentMonthExpenses - currentMonthSavings >= 0;
+  const statusColor = recommendation.summary.isOptimal && isBudgetStable ? COLORS.success : COLORS.warning;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
@@ -63,13 +70,25 @@ const RecommendationScreen = () => {
             <Ionicons name={recommendation.summary.isOptimal ? "checkmark-circle" : "alert-circle"} size={30} color={statusColor} />
           </View>
           <View style={styles.statusCopy}>
-            <StatusPill label={recommendation.summary.isOptimal ? "Status Optimal" : "Perlu Penyesuaian"} iconName={recommendation.summary.isOptimal ? "checkmark" : "alert"} color={statusColor} />
-            <Text style={styles.statusTitle}>{recommendation.summary.isOptimal ? "Keuangan stabil" : "Perlu penyesuaian"}</Text>
-            <Text style={styles.statusHint}>{recommendation.summary.isOptimal ? "Pertahankan ritme belanja dan sisihkan tabungan secara konsisten." : "Prioritaskan kebutuhan utama dan tahan pengeluaran yang kurang mendesak."}</Text>
+            <StatusPill label={recommendation.summary.isOptimal && isBudgetStable ? "Status Optimal" : "Perlu Penyesuaian"} iconName={recommendation.summary.isOptimal && isBudgetStable ? "checkmark" : "alert"} color={statusColor} />
+            <Text style={styles.statusTitle}>{recommendation.summary.isOptimal && isBudgetStable ? "Keuangan stabil" : "Perlu penyesuaian"}</Text>
+            <Text style={styles.statusHint}>
+              {recommendation.summary.isOptimal && isBudgetStable ? "Pertahankan ritme belanja dan sisihkan tabungan secara konsisten." : "Prioritaskan kebutuhan utama dan tahan pengeluaran yang kurang mendesak."}
+            </Text>
           </View>
         </View>
-        <Text style={styles.statusMessage}>{recommendation.summary.message}</Text>
-        <MoneyMeter label="Rasio pengeluaran" value={currentMonthExpenses} limit={monthlyIncome} color={statusColor} helper={`${((currentMonthExpenses / monthlyIncome) * 100).toFixed(1)}% dari pendapatan bulan ini`} />
+        <Text style={styles.statusMessage}>
+          {recommendation.summary.isOptimal && isBudgetStable
+            ? "Pengeluaran Anda sudah baik! Lanjutkan dan tingkatkan tabungan."
+            : "Pengeluaran Anda tidak sesuai dengan kondisi budget bulan ini. Prioritaskan kebutuhan utama dan kurangi pengeluaran yang kurang mendesak."}
+        </Text>
+        <MoneyMeter
+          label="Rasio pengeluaran"
+          value={currentMonthExpenses}
+          limit={monthlyIncome + accumulatedBalance}
+          color={statusColor}
+          helper={`${((currentMonthExpenses / (monthlyIncome + accumulatedBalance)) * 100).toFixed(1)}% dari total budget bulan ini`}
+        />
       </Card>
 
       {/* Allocation Recommendations */}

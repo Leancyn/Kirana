@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { AppModal, Card, CategoryBadge, EmptyState, MoneyMeter, PrimaryButton, ScreenHeader, SecondaryButton, SectionHeader, StatusPill } from "../components";
+import { AppModal, BottomSheetFormModal, Card, CategoryBadge, EmptyState, MoneyMeter, PrimaryButton, ScreenHeader, SectionHeader, StatusPill } from "../components";
+
 import { CategorySelector, CurrencyInput, DateTimePicker, FormInput } from "../components/FormComponents";
+
 import { CATEGORIES, COLORS } from "../constants";
 import { useFinanceStore } from "../store/financeStore";
 import { formatCurrency, formatDate, generateExpenseStats, groupExpensesByCategory } from "../utils/formatters";
@@ -192,34 +194,32 @@ const AddExpenseScreen = ({ navigation }) => {
           </>
         )}
 
-        {/* Form */}
-        {showForm && (
-          <>
-            <SectionHeader title="Catat Pengeluaran Baru" />
-            <Card style={styles.formCard}>
-              <FormInput label="Deskripsi Pengeluaran" placeholder="Contoh: Makan siang di restoran" value={description} onChangeText={setDescription} error={formErrors.description} />
+        {/* Form (Modal) */}
+        <BottomSheetFormModal
+          visible={showForm}
+          title="Catat Pengeluaran Baru"
+          onClose={() => {
+            setShowForm(false);
+            setFormErrors({});
+          }}
+          primaryLabel="Simpan"
+          secondaryLabel="Batal"
+          primaryIconName="checkmark-outline"
+          onSecondaryPress={() => {
+            setShowForm(false);
+            setFormErrors({});
+          }}
+          onPrimaryPress={handleAddExpense}
+        >
+          <FormInput label="Deskripsi Pengeluaran" placeholder="Contoh: Makan siang di restoran" value={description} onChangeText={setDescription} error={formErrors.description} />
 
-              <CurrencyInput label="Nominal" value={amount} onChangeText={setAmount} error={formErrors.amount} />
+          <CurrencyInput label="Nominal" value={amount} onChangeText={setAmount} error={formErrors.amount} />
 
-              <DateTimePicker label="Tanggal Pengeluaran" value={date} onChangeDate={setDate} />
+          <DateTimePicker label="Tanggal Pengeluaran" value={date} onChangeDate={setDate} />
 
-              <CategorySelector selectedCategory={category} onSelectCategory={setCategory} categories={CATEGORIES} />
-              {formErrors.category && <Text style={styles.formError}>{formErrors.category}</Text>}
-
-              <View style={styles.formActions}>
-                <SecondaryButton
-                  title="Batal"
-                  onPress={() => {
-                    setShowForm(false);
-                    setFormErrors({});
-                  }}
-                  style={{ flex: 1 }}
-                />
-                <PrimaryButton title="Simpan" iconName="checkmark-outline" onPress={handleAddExpense} style={{ flex: 1, marginLeft: 10 }} />
-              </View>
-            </Card>
-          </>
-        )}
+          <CategorySelector selectedCategory={category} onSelectCategory={setCategory} categories={CATEGORIES} />
+          {formErrors.category && <Text style={styles.formError}>{formErrors.category}</Text>}
+        </BottomSheetFormModal>
 
         {/* Expenses List */}
         {sortedExpenses.length > 0 && (

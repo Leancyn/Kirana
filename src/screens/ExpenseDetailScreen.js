@@ -1,9 +1,9 @@
-import React from "react";
-import { View, ScrollView, StyleSheet, Text } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Card, EmptyState, SectionHeader } from "../components";
+
+import { CATEGORY_COLORS, COLORS } from "../constants";
 import { useFinanceStore } from "../store/financeStore";
 import { formatCurrency, formatDate } from "../utils/formatters";
-import { COLORS, CATEGORY_COLORS } from "../constants";
-import { Card, SectionHeader, EmptyState } from "../components";
 
 const ExpenseDetailScreen = ({ route }) => {
   const { category } = route.params;
@@ -26,6 +26,7 @@ const ExpenseDetailScreen = ({ route }) => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Header */}
+
       <Card style={[styles.headerCard, { backgroundColor: CATEGORY_COLORS[category] || COLORS.primary }]}>
         <View style={styles.headerContent}>
           <Text style={styles.categoryName}>{category}</Text>

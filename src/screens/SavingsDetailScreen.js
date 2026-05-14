@@ -1,9 +1,9 @@
-import React from "react";
-import { View, ScrollView, StyleSheet, Text } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { AllocationBar, Card, EmptyState, SectionHeader, StatusPill } from "../components";
+
+import { COLORS } from "../constants";
 import { useFinanceStore } from "../store/financeStore";
 import { formatCurrency } from "../utils/formatters";
-import { COLORS } from "../constants";
-import { Card, SectionHeader, AllocationBar, EmptyState, StatusPill } from "../components";
 
 const SavingsDetailScreen = ({ route }) => {
   const { savingsId } = route.params;
@@ -27,6 +27,7 @@ const SavingsDetailScreen = ({ route }) => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Header */}
+
       <Card style={[styles.headerCard, { backgroundColor: isCompleted ? COLORS.success : COLORS.primary }]}>
         <Text style={styles.headerTitle}>{savings.name}</Text>
         <StatusPill label={isCompleted ? "Target Tercapai" : `${Math.round(progress)}% Tercapai`} iconName={isCompleted ? "checkmark-circle" : "trending-up"} color={isCompleted ? COLORS.success : COLORS.white} style={styles.headerPill} />

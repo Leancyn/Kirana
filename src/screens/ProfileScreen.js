@@ -1,10 +1,12 @@
-import React, { useState } from "react";
-import { View, ScrollView, StyleSheet, Text, KeyboardAvoidingView, Platform } from "react-native";
+import { useState } from "react";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { AppModal, BottomSheetFormModal, Card, EmptyState, PrimaryButton, ScreenHeader, SectionHeader, StatusPill } from "../components";
+
+import { CurrencyInput } from "../components/FormComponents";
+
+import { COLORS } from "../constants";
 import { useFinanceStore } from "../store/financeStore";
 import { formatCurrency } from "../utils/formatters";
-import { COLORS } from "../constants";
-import { AppModal, Card, ScreenHeader, SectionHeader, PrimaryButton, EmptyState, StatusPill } from "../components";
-import { CurrencyInput } from "../components/FormComponents";
 
 const ProfileScreen = () => {
   const { monthlyIncome, setIncome, savingsGoal, setSavingsGoal, resetMonthlyData } = useFinanceStore();
@@ -94,33 +96,32 @@ const ProfileScreen = () => {
           </>
         )}
 
-        {isEditing && (
-          <>
-            <SectionHeader title="Edit Profil Keuangan" />
+        <BottomSheetFormModal
+          visible={isEditing}
+          title="Edit Profil Keuangan"
+          onClose={() => {
+            setIsEditing(false);
+            setEditIncome(monthlyIncome.toString());
+            setEditSavingsGoal(savingsGoal.toString());
+            setFormErrors({});
+          }}
+          primaryLabel="Simpan"
+          secondaryLabel="Batal"
+          primaryIconName="checkmark-outline"
+          onSecondaryPress={() => {
+            setIsEditing(false);
+            setEditIncome(monthlyIncome.toString());
+            setEditSavingsGoal(savingsGoal.toString());
+            setFormErrors({});
+          }}
+          onPrimaryPress={handleSaveProfile}
+        >
+          <CurrencyInput label="Pendapatan Bulanan" value={editIncome} onChangeText={setEditIncome} error={formErrors.income} />
 
-            <Card style={styles.formCard}>
-              <CurrencyInput label="Pendapatan Bulanan" value={editIncome} onChangeText={setEditIncome} error={formErrors.income} />
+          <CurrencyInput label="Target Tabungan Bulanan (Opsional)" value={editSavingsGoal} onChangeText={setEditSavingsGoal} />
 
-              <CurrencyInput label="Target Tabungan Bulanan (Opsional)" value={editSavingsGoal} onChangeText={setEditSavingsGoal} />
-
-              <Text style={styles.formHelp}>Masukkan target tabungan jika Anda memiliki target khusus. Anda juga bisa membuat target tabungan spesifik di halaman Tabungan.</Text>
-
-              <View style={styles.formActions}>
-                <PrimaryButton title="Simpan" iconName="checkmark-outline" onPress={handleSaveProfile} style={{ marginBottom: 10 }} />
-                <PrimaryButton
-                  title="Batal"
-                  onPress={() => {
-                    setIsEditing(false);
-                    setEditIncome(monthlyIncome.toString());
-                    setEditSavingsGoal(savingsGoal.toString());
-                    setFormErrors({});
-                  }}
-                  style={{ backgroundColor: COLORS.gray }}
-                />
-              </View>
-            </Card>
-          </>
-        )}
+          <Text style={styles.formHelp}>Masukkan target tabungan jika Anda memiliki target khusus. Anda juga bisa membuat target tabungan spesifik di halaman Tabungan.</Text>
+        </BottomSheetFormModal>
 
         {!isEditing && monthlyIncome === 0 && (
           <>
@@ -144,7 +145,7 @@ const ProfileScreen = () => {
 
             <PrimaryButton title="Edit Profil" iconName="create-outline" onPress={() => setIsEditing(true)} style={{ marginBottom: 10 }} />
 
-            <PrimaryButton title="Reset Data Bulanan" iconName="refresh-outline" onPress={handleResetData} style={{ backgroundColor: COLORS.warning }} />
+            <PrimaryButton title="Reset Semua Data & History" iconName="refresh-outline" onPress={handleResetData} style={{ backgroundColor: COLORS.warning }} />
           </>
         )}
 

@@ -2,14 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
-import { AllocationBar, Card, CategoryBadge, EmptyState, InsightChip, MoneyMeter, PrimaryButton, QuickActionCard, SectionHeader, StatCard, StatusPill } from "../components";
+import { AllocationBar, Card, CategoryBadge, EmptyState, InsightChip, KiranaHeader, MoneyMeter, PrimaryButton, QuickActionCard, SectionHeader, StatCard, StatusPill } from "../components";
+
 import { CATEGORY_COLORS, COLORS } from "../constants";
 import { fuzzyInference, generateRecommendations } from "../fuzzy/tsukamoto";
 import { useFinanceStore } from "../store/financeStore";
 import { formatCurrency, getCurrentMonthYear, groupExpensesByCategory } from "../utils/formatters";
 
 const DashboardScreen = ({ navigation }) => {
-  const { monthlyIncome, accumulatedBalance, currentMonthExpenses, currentMonthSavings, expenses, savingsTargets, recalculateCurrentMonthData, getTodayExpenses } = useFinanceStore();
+  const { monthlyIncome, accumulatedBalance, currentMonthExpenses, currentMonthSavings, expenses, savingsTargets, recalculateCurrentMonthData, getTodayExpenses, syncRollovers } = useFinanceStore();
 
   const [recommendation, setRecommendation] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -19,21 +20,33 @@ const DashboardScreen = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const checkMonthChange = () => {
-      const now = new Date();
-      if (now.getMonth() !== currentMonth || now.getFullYear() !== currentYear) {
-        recalculateCurrentMonthData();
-        setCurrentMonth(now.getMonth());
-        setCurrentYear(now.getFullYear());
-      }
-    };
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 1);
+    const msUntilNextMonth = Math.max(0, nextMonth.getTime() - now.getTime());
 
-    // Check immediately on screen focus
-    checkMonthChange();
+    // Sync segera bila user membuka dashboard setelah bulan berubah
+    if (now.getMonth() !== currentMonth || now.getFullYear() !== currentYear) {
+      syncRollovers();
+      setCurrentMonth(now.getMonth());
+      setCurrentYear(now.getFullYear());
+    }
 
-    const interval = setInterval(checkMonthChange, 60000); // Check every minute
-    return () => clearInterval(interval);
-  }, [currentMonth, currentYear, recalculateCurrentMonthData]);
+    const timeoutId = setTimeout(() => {
+      const tNow = new Date();
+      syncRollovers(); // recomputeDerivedState => accumulatedBalance ikut berubah
+      setCurrentMonth(tNow.getMonth());
+      setCurrentYear(tNow.getFullYear());
+    }, msUntilNextMonth);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentMonth, currentYear, syncRollovers]);
+
+  // Pastikan derived state (termasuk accumulatedBalance) selalu sinkron saat bulan berganti
+  useFocusEffect(
+    useCallback(() => {
+      recalculateCurrentMonthData();
+    }, [recalculateCurrentMonthData]),
+  );
 
   // Also check on screen focus (when user returns to dashboard)
   useFocusEffect(
@@ -115,6 +128,7 @@ const DashboardScreen = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <KiranaHeader />
       <Animated.View style={[styles.heroCard, { opacity: fadeAnim }]}>
         <View style={styles.heroTopLine}>
           <Text style={styles.monthYear}>
@@ -124,7 +138,8 @@ const DashboardScreen = ({ navigation }) => {
         </View>
         <View style={styles.heroHeader}>
           <View style={styles.heroCopy}>
-            <Text style={styles.heroLabel}>Sisa uang yang masih aman dipakai</Text>
+            <Text style={styles.heroLabel}>Sisa uang kamu</Text>
+
             <Text style={[styles.heroValue, { color: remainingBudget >= 0 ? COLORS.white : "#FECACA" }]}>{formatCurrency(remainingBudget)}</Text>
           </View>
           <StatusPill label={budgetStatus.label} iconName={budgetStatus.icon} color={budgetStatus.color} style={styles.heroPill} />
