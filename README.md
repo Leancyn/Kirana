@@ -1,7 +1,7 @@
 # Kirana
 
 [![React Native](https://img.shields.io/badge/React_Native-2025-61DAFB?style=for-the-badge&logo=react)](https://reactnative.dev/)  
-[![Expo](https://img.shields.io/badge/Expo-48-000000?style=for-the-badge&logo=expo)](https://expo.dev/)  
+[![Expo](https://img.shields.io/badge/Expo-55-000000?style=for-the-badge&logo=expo)](https://expo.dev/)  
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strong-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)  
 [![State Management](https://img.shields.io/badge/Zustand-Lightweight-orange?style=for-the-badge)](https://github.com/pmndrs/zustand)  
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
