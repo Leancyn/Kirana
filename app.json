@@ -2,7 +2,7 @@
   "expo": {
     "name": "Kirana",
     "slug": "kirana",
-    "version": "1.0.1",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/brand-mark.png",
     "scheme": "kirana",
@@ -17,6 +17,7 @@
       "bundleIdentifier": "com.kirana.app"
     },
     "android": {
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/brand-mark.png",
         "backgroundColor": "#1F6F68"
@@ -31,12 +32,7 @@
         "projectId": "600752c6-fd7b-49fb-8e21-ff66178bf098"
       }
     },
-    "plugins": [
-      "expo-sqlite",
-      "expo-font",
-      "expo-web-browser",
-      "expo-router"
-    ],
+    "plugins": ["expo-sqlite", "expo-font", "expo-web-browser", "expo-router"],
     "runtimeVersion": {
       "policy": "appVersion"
     },

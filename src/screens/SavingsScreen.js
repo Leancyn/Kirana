@@ -152,7 +152,7 @@ const SavingsScreen = ({ navigation }) => {
               </View>
               <View style={styles.savingActionText}>
                 <Text style={styles.savingActionTitle}>Sisihkan uang hari ini</Text>
-                <Text style={styles.savingActionSubtitle}>Catat tabungan kecil atau buat target baru dengan jelas.</Text>
+                <Text style={styles.savingActionSubtitle}>Catat tabungan atau buat target baru untuk masa depanmu.</Text>
               </View>
             </View>
             <View style={styles.savingActionButtons}>
@@ -339,7 +339,7 @@ const SavingsScreen = ({ navigation }) => {
 
       {/* Floating Action Button */}
       {!showAddForm && !showSavingForm && (
-        <View style={[styles.fabRow, { bottom: insets.bottom + 8, right: 16 }]}>
+        <View style={[styles.fabRow, { bottom: insets.bottom - 19, right: 16 }]}>
           {savingsTargets.length === 0 ? (
             <PrimaryButton title="Buat Target" iconName="flag-outline" onPress={() => setShowAddForm(true)} style={[styles.fab, { backgroundColor: COLORS.success, width: 140 }]} />
           ) : savingsTargets.every((t) => (t.currentAmount || 0) >= (t.targetAmount || 0)) ? (

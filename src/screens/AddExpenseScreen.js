@@ -256,7 +256,7 @@ const AddExpenseScreen = ({ navigation }) => {
             styles.fab,
             {
               backgroundColor: COLORS.accent,
-              bottom: insets.bottom + 8,
+              bottom: insets.bottom - 19,
               right: 16,
             },
           ]}

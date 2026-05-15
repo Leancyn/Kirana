@@ -1,7 +1,7 @@
+import Constants from "expo-constants";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { AppModal, BottomSheetFormModal, Card, EmptyState, PrimaryButton, ScreenHeader, SectionHeader, StatusPill } from "../components";
-
 import { CurrencyInput } from "../components/FormComponents";
 
 import { COLORS } from "../constants";
@@ -154,8 +154,7 @@ const ProfileScreen = () => {
 
         <Card>
           <Text style={styles.appTitle}>Kirana</Text>
-          <Text style={styles.appVersion}>Versi 1.0.0</Text>
-
+          <Text style={styles.appVersion}>Versi {Constants.expoConfig?.version}</Text>
           <View style={styles.featureList}>
             <Text style={styles.featureTitle}>Fitur Utama:</Text>
             <Text style={styles.featureItem}>• Tracking pengeluaran harian</Text>
